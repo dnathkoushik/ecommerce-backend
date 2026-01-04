@@ -10,6 +10,8 @@ const db_config = require("./configs/db.config");
 const user_model = require("./models/user.model");
 const bcrypt = require("bcryptjs");
 
+app.use(express.json()); //middleware  : to parse the incoming request body as JSON
+
 /**
  * Create an admin user at the starting of the application
  * if not already present
@@ -30,10 +32,14 @@ db.once("open", () => {
 })
 
 async function init(){
-    let user = await user_model.findOne({userId : "admin"});
-    if(user){ //if admin already exist
-        console.log("Admin is already present");
-        return;
+    try{
+        let user = await user_model.findOne({userId : "admin"});
+        if(user){ //if admin already exist
+            console.log("Admin is already present");
+            return;
+        }
+    } catch(err){
+        console.log("Error while reading the data", err);
     }
 
     try{
@@ -52,6 +58,10 @@ async function init(){
     }
 }
 
+/**
+ * Stich the route to the server
+ */
+require("./routers/auth.routes")(app);
 
 /**
  * Start the server
