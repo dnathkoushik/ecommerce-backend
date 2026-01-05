@@ -3,6 +3,8 @@
  */
 
 const user_model = require("../models/user.model");
+const JWT = require("jsonwebtoken");
+const auth_config = require("../configs/auth.config");
 
 const verifySignUpBody = async (req, res, next) => {
     try{
@@ -67,7 +69,49 @@ const verifySigninBody = async (req, res, next) => {
     }
 };
 
+const verifyToken = (req, res, next) => {
+    //Check if the token is present in the header
+    const token = req.headers["x-access-token"];
+    if(!token){
+        return res.status(403).send({
+            message : "No token provided! : Unauthorized",
+        });
+    }
+
+    //If it's the valid token, proceed to the next middleware
+    JWT.verify(token, auth_config.secret, async (err, decoded) => {
+        if(err){
+            return res.status(401).send({
+                message : "Unauthorized! : Invalid token"
+            });
+        }
+        const user = await user_model.findOne({userId : decoded.id});
+        if(!user){
+            return res.status(401).send({
+                message : "Unauthorized! : The user for this token does not exist"
+            });
+        }
+        //set the user info in the request body
+        req.user = user;
+        next();
+    });
+
+    //If it's not valid token, send an error response
+};
+
+const isAdmin = (req, res, next) => {
+    //Check if the user is admin
+    if(req.user && req.user.userType !== "ADMIN"){
+        return res.status(403).send({
+            message : "Forbidden! : User is not an admin"
+        });
+    }
+    next();
+};
+
 module.exports = {
     verifySignUpBody : verifySignUpBody,
-    verifySigninBody : verifySigninBody
+    verifySigninBody : verifySigninBody,
+    verifyToken : verifyToken,
+    isAdmin : isAdmin
 };
