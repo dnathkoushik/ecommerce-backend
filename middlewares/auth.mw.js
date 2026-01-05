@@ -42,8 +42,32 @@ const verifySignUpBody = async (req, res, next) => {
             message : "Some internal error while validating the request body",
         })
     }
-}
+};
+
+const verifySigninBody = async (req, res, next) => {
+    try{
+        //check for the userId
+        if(!req.body.userId){
+            return res.status(400).send({
+                message : "Failed! userId is not provided in the request body"
+            });
+        }
+        //check for the password
+        if(!req.body.password){
+            return res.status(400).send({
+                message : "Failed! password is not provided in the request body"
+            });
+        }
+        next();
+    } catch(err){
+        console.log("Error while validating the request body object", err);
+        res.status(500).send({
+            message : "Some internal error while validating the request body",
+        })
+    }
+};
 
 module.exports = {
-    verifySignUpBody : verifySignUpBody
+    verifySignUpBody : verifySignUpBody,
+    verifySigninBody : verifySigninBody
 };
