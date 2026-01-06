@@ -55,3 +55,33 @@ exports.deleteCategoryById = async (req, res) => {
         })
     }
 };
+
+exports.getAllCategories = async (req, res) => {
+    try{
+        const categories = await category_model.find();
+        return res.status(200).send(categories);
+    } catch(err){
+        console.log("Error while fetching categories", err);
+        return res.status(500).send({
+            message : "Some internal error while fetching categories",
+        });
+    }   
+};
+
+exports.getCategoryById = async (req, res) => {
+    const category_id = req.params.categoryId;
+    try{
+        const category = await category_model.findById(category_id);
+        if(!category){
+            return res.status(404).send({
+                message : "Category not found with the given id"
+            });
+        }
+        return res.status(200).send(category);
+    } catch(err){
+        console.log("Error while fetching the category", err);
+        return res.status(500).send({
+            message : "Some internal error while fetching the category",
+        });
+    }
+};
