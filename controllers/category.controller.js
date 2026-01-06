@@ -85,3 +85,47 @@ exports.getCategoryById = async (req, res) => {
         });
     }
 };
+
+const mongoose = require("mongoose");
+
+exports.updateCategoryById = async (req, res) => {
+    const category_id = req.params.categoryId;
+    const request_body = req.body;
+
+    if(!request_body || Object.keys(request_body).length === 0){
+        return res.status(400).send({
+            message : "Category details to be updated can not be empty"
+        });
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(category_id)){
+        return res.status(400).send({
+            message: "Invalid category ID"
+        });
+    }
+
+    const updateObj = {};
+    if(request_body.name) updateObj.name = request_body.name;
+    if(request_body.description) updateObj.description = request_body.description;
+
+    try{
+        const updatedCategory = await category_model.findByIdAndUpdate(
+            category_id,
+            updateObj,
+            { new: true, runValidators: true }
+        );
+
+        if(!updatedCategory){
+            return res.status(404).send({
+                message : "Category not found with the given id"
+            });
+        }
+
+        return res.status(200).send(updatedCategory);
+
+    } catch(err){
+        return res.status(500).send({
+            message : "Some internal error while updating the category",
+        });
+    }
+};
