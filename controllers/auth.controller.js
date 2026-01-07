@@ -1,5 +1,5 @@
 /**
- * I need to write the controller logic to register a user
+ * I need to write the controller logic to register and login a user
  */
 
 const bcrypt = require("bcryptjs");
