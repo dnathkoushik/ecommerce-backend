@@ -21,3 +21,20 @@ exports.createProduct = async (req, res) => {
         });
     }
 };
+
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await product_model
+            .find()
+            .populate("category", "name description")
+            .populate("createdBy", "name email userType");
+
+        return res.status(200).send(products);
+
+    } catch (err) {
+        console.log("Error while fetching products", err);
+        return res.status(500).send({
+            message: "Some internal error while fetching products"
+        });
+    }
+};

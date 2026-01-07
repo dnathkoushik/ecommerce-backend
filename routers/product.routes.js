@@ -4,4 +4,5 @@ const authMw = require('../middlewares/auth.mw');
 
 module.exports = (app) => {
     app.post("/ecomm/api/v1/products", [authMw.verifyToken, authMw.isAdmin, productMw.validateCreateProduct],productController.createProduct);
+    app.get("/ecomm/api/v1/products", productController.getAllProducts);
 };
