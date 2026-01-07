@@ -69,3 +69,37 @@ exports.getProductById = async (req, res) => {
         });
     }
 };
+
+exports.getProductsByCategory = async (req, res) => {
+    const categoryId = req.params.categoryId;
+
+    // 1️⃣ Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        return res.status(400).send({
+            message: "Invalid category ID"
+        });
+    }
+
+    try {
+        // 2️⃣ Check if category exists
+        const categoryExists = await category_model.findById(categoryId);
+        if (!categoryExists) {
+            return res.status(404).send({
+                message: "Category not found"
+            });
+        }
+
+        // 3️⃣ Fetch products of that category
+        const products = await product_model
+            .find({ category: categoryId })
+            .populate("category", "name description");
+
+        return res.status(200).send(products);
+
+    } catch (err) {
+        console.log("Error while fetching products by category", err);
+        return res.status(500).send({
+            message: "Some internal error while fetching products"
+        });
+    }
+};
