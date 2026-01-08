@@ -23,3 +23,25 @@ exports.validateCreateProduct = (req, res, next) => {
 
     next();
 };
+
+exports.validateUpdateProduct = (req, res, next) => {
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).send({
+            message: "Nothing to update"
+        });
+    }
+
+    if (req.body.price !== undefined && req.body.price < 0) {
+        return res.status(400).send({
+            message: "Price cannot be negative"
+        });
+    }
+
+    if (req.body.stock !== undefined && req.body.stock < 0) {
+        return res.status(400).send({
+            message: "Stock cannot be negative"
+        });
+    }
+
+    next();
+};

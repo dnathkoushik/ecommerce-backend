@@ -103,3 +103,61 @@ exports.getProductsByCategory = async (req, res) => {
         });
     }
 };
+
+exports.updateProduct = async (req, res) => {
+    const productId = req.params.productId;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).send({
+            message: "Invalid product ID"
+        });
+    }
+
+    const updateObj = {};
+
+    if (req.body.name) updateObj.name = req.body.name;
+    if (req.body.description) updateObj.description = req.body.description;
+    if (req.body.price !== undefined) updateObj.price = req.body.price;
+    if (req.body.stock !== undefined) updateObj.stock = req.body.stock;
+    if (req.body.images) updateObj.images = req.body.images;
+    if (req.body.category) updateObj.category = req.body.category;
+
+    try {
+        if (updateObj.category) {
+            if (!mongoose.Types.ObjectId.isValid(updateObj.category)) {
+                return res.status(400).send({
+                    message: "Invalid category ID"
+                });
+            }
+
+            const categoryExists = await category_model.findById(updateObj.category);
+            if (!categoryExists) {
+                return res.status(400).send({
+                    message: "Category does not exist"
+                });
+            }
+        }
+
+        const updatedProduct = await product_model.findByIdAndUpdate(
+            productId,
+            updateObj,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).send({
+                message: "Product not found"
+            });
+        }
+
+        return res.status(200).send(updatedProduct);
+
+    } catch (err) {
+        console.log("Error while updating product", err);
+        return res.status(500).send({
+            message: "Some internal error while updating product"
+        });
+    }
+};
+
+
