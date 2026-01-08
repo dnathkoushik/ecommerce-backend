@@ -7,4 +7,5 @@ module.exports = (app) => {
     app.get("/ecomm/api/v1/products", productController.getAllProducts);
     app.get("/ecomm/api/v1/categories/:categoryId/products", productController.getProductsByCategory);
     app.put("/ecomm/api/v1/products/:productId", [authMw.verifyToken, authMw.isAdmin, productMw.validateUpdateProduct], productController.updateProduct);
+    app.delete("/ecomm/api/v1/products/:productId", [authMw.verifyToken, authMw.isAdmin], productController.deleteProduct);
 };

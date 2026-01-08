@@ -160,4 +160,29 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
+exports.deleteProduct = async (req, res) => {
+    const productId = req.params.productId;
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).send({
+            message: "Invalid product ID"
+        });
+    }
+    try {
+        const deletedProduct = await product_model.findByIdAndDelete(productId);    
+        if (!deletedProduct) {
+            return res.status(404).send({
+                message: "Product not found"
+            });
+        }
+        return res.status(200).send({
+            message: "Product deleted successfully"
+        });
+    } catch (err) {
+        console.log("Error while deleting product", err);
+        return res.status(500).send({
+            message: "Some internal error while deleting product"
+        });
+    }
+};
+
 
