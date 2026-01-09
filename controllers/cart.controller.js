@@ -58,3 +58,29 @@ exports.addToCart = async (req, res) => {
         });
     }
 };
+
+exports.getMyCart = async (req, res) => {
+    const userId = req.user._id;
+
+    try {
+        const cart = await cart_model.findOne({ user: userId })
+            .populate("items.product", "name price images stock");
+
+        // If cart does not exist, return empty cart
+        if (!cart) {
+            return res.status(200).send({
+                user: userId,
+                items: []
+            });
+        }
+
+        return res.status(200).send(cart);
+
+    } catch (err) {
+        console.log("Error while fetching cart", err);
+        return res.status(500).send({
+            message: "Some internal error while fetching cart"
+        });
+    }
+};
+
