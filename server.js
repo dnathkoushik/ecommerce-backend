@@ -65,6 +65,7 @@ require("./routers/auth.routes")(app);
 require("./routers/category.routes")(app);
 require("./routers/product.routes")(app);
 require("./routers/cart.routes")(app);
+require("./routers/order.routes")(app);
 
 /**
  * Start the server
