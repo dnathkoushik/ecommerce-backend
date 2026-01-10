@@ -66,3 +66,21 @@ exports.placeOrder = async (req, res) => {
         });
     }
 };
+
+exports.getMyOrders = async (req, res) => {
+    const userId = req.user._id;
+
+    try {
+        const orders = await order_model.find({ user: userId })
+            .populate("items.product", "name images")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).send(orders);
+
+    } catch (err) {
+        console.log("Error while fetching user orders", err);
+        return res.status(500).send({
+            message: "Some internal error while fetching orders"
+        });
+    }
+};
