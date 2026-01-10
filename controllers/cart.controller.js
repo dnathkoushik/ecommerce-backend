@@ -84,3 +84,58 @@ exports.getMyCart = async (req, res) => {
     }
 };
 
+exports.updateCartQuantity = async (req, res) => {
+    const userId = req.user._id;
+    const { productId, quantity } = req.body;
+
+    try {
+        //Check product exists
+        const product = await product_model.findById(productId);
+        if (!product) {
+            return res.status(404).send({
+                message: "Product not found"
+            });
+        }
+
+        //Check stock
+        if (quantity > product.stock) {
+            return res.status(400).send({
+                message: "Requested quantity exceeds available stock"
+            });
+        }
+
+        //Find user's cart
+        const cart = await cart_model.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).send({
+                message: "Cart not found"
+            });
+        }
+
+        //Find product in cart
+        const itemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).send({
+                message: "Product not found in cart"
+            });
+        }
+
+        //Update quantity
+        cart.items[itemIndex].quantity = quantity;
+
+        //Save cart
+        await cart.save();
+
+        return res.status(200).send(cart);
+
+    } catch (err) {
+        console.log("Error while updating cart quantity", err);
+        return res.status(500).send({
+            message: "Some internal error while updating cart"
+        });
+    }
+};
+
