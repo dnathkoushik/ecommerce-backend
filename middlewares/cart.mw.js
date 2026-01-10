@@ -47,3 +47,15 @@ exports.validateUpdateCartQuantity = (req, res, next) => {
 
     next();
 };
+
+exports.validateRemoveFromCart = (req, res, next) => {
+    const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).send({
+            message: "Invalid product ID"
+        });
+    }
+
+    next();
+};

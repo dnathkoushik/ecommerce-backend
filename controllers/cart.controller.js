@@ -139,3 +139,32 @@ exports.updateCartQuantity = async (req, res) => {
     }
 };
 
+exports.removeFromCart = async (req, res) => {
+    const userId = req.user._id;
+    const { productId } = req.params;
+    try {
+        const cart = await cart_model.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).send({
+                message: "Cart not found"
+            });
+        }
+        const itemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
+        if (itemIndex === -1) {
+            return res.status(404).send({
+                message: "Product not found in cart"
+            });
+        }
+        cart.items.splice(itemIndex, 1);
+        await cart.save();
+        return res.status(200).send(cart);
+    } catch (err) {
+        console.log("Error while removing from cart", err);
+        return res.status(500).send({
+            message: "Some internal error while removing from cart"
+        });
+    }
+};
+
